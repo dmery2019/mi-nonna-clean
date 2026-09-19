@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Entorno
+.env
+.env.save
+
+# Base de datos
+data/*.db
+data/*.db-journal
+
+# Logs
+logs/*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Supervisor (solo para WSL local)
+supervisor.py
+supervisor.log
+monitor_409.py
+bot.pid
+
+# Scripts locales Windows
+*.bat
+*.log
+
+# Testing/temp
+test_data.py
+debug_*.py
+check_*.py
+ver_*.py
+set_commands.py
+update_token.py

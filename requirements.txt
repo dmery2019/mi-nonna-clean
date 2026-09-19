@@ -1,0 +1,13 @@
+# Bot de Telegram
+python-telegram-bot==20.7
+python-telegram-bot[job-queue]==20.7
+
+# Base de datos
+# SQLite viene incluido en Python
+
+# Utilidades
+python-dotenv==1.0.0
+rich==13.7.0
+
+# Opcional: para reportes en PDF
+# reportlab==4.0.7
