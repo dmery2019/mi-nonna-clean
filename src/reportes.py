@@ -101,13 +101,14 @@ class Reportes:
         # Productos vendidos
         cursor.execute("""
             SELECT 
-                dp.producto,
+                pr.nombre as producto,
                 SUM(dp.cantidad) as cantidad_vendida,
                 SUM(dp.cantidad * dp.precio_unitario) as total_vendido
             FROM detalle_pedidos dp
-            JOIN pedidos p ON dp.id_pedido = p.id
+            JOIN pedidos p ON dp.pedido_id = p.id
+            JOIN productos pr ON dp.producto_id = pr.id
             WHERE datetime(p.fecha) BETWEEN ? AND ?
-            GROUP BY dp.producto
+            GROUP BY dp.producto_id, pr.nombre
             ORDER BY total_vendido DESC
         """, (fecha_inicio.isoformat(), fecha_fin.isoformat()))
         
