@@ -155,12 +155,141 @@ class Reportes:
         return "\n".join(lineas)
     
     def exportar_excel(self, datos: Dict) -> io.BytesIO:
-        """
-        Excel export is disabled.
-        To enable: install openpyxl (pip install openpyxl==3.11.0)
-        """
+        """Genera un archivo Excel con los datos del reporte y retorna un BytesIO."""
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+        
+        wb = openpyxl.Workbook()
+
+        # Estilos
+        color_header = "2E7D32"  # verde oscuro
+        color_titulo = "1B5E20"  # verde muy oscuro
+        font_titulo  = Font(bold=True, color="FFFFFF", size=13)
+        font_header  = Font(bold=True, color="FFFFFF", size=11)
+        font_normal  = Font(size=10)
+        fill_titulo  = PatternFill("solid", fgColor=color_titulo)
+        fill_header  = PatternFill("solid", fgColor=color_header)
+        fill_alt     = PatternFill("solid", fgColor="E8F5E9")
+        align_center = Alignment(horizontal="center", vertical="center")
+        align_right  = Alignment(horizontal="right")
+        borde = Border(
+            left=Side(style="thin"), right=Side(style="thin"),
+            top=Side(style="thin"), bottom=Side(style="thin")
+        )
+
+        periodo = f"{datos['fecha_inicio']} - {datos['fecha_fin']}"
+
+        # ── Hoja 1: Pedidos ──────────────────────────────────────────────
+        ws1 = wb.active
+        ws1.title = "Pedidos"
+
+        ws1.merge_cells("A1:I1")
+        ws1["A1"] = f"Reporte de Ventas Nonna — {periodo}"
+        ws1["A1"].font = font_titulo
+        ws1["A1"].fill = fill_titulo
+        ws1["A1"].alignment = align_center
+
+        headers = ["N° Pedido", "Fecha", "Cliente", "Subtotal", "IVA", "Recargo", "Total", "Entregado", "Pagado"]
+        for col, h in enumerate(headers, 1):
+            cell = ws1.cell(row=2, column=col, value=h)
+            cell.font = font_header
+            cell.fill = fill_header
+            cell.alignment = align_center
+            cell.border = borde
+
+        for i, p in enumerate(datos["pedidos"], 3):
+            fecha = datetime.fromisoformat(p["fecha"]).strftime("%d/%m/%Y %H:%M")
+            fila = [p["numero_pedido"], fecha, p["cliente"],
+                    p["subtotal"], p["iva"], p["recargo"], p["total"],
+                    "✅ Sí" if p["estado_entregado"] else "⏳ No",
+                    "✅ Sí" if p["estado_pagado"] else "⏳ No"]
+            fill = fill_alt if i % 2 == 0 else PatternFill()
+            for col, val in enumerate(fila, 1):
+                cell = ws1.cell(row=i, column=col, value=val)
+                cell.font = font_normal
+                cell.fill = fill
+                cell.border = borde
+                if 4 <= col <= 7:
+                    cell.number_format = '"$"#,##0'
+                    cell.alignment = align_right
+                elif col >= 8:
+                    cell.alignment = align_center
+
+        # Fila de totales
+        fila_total = len(datos["pedidos"]) + 3
+        ws1.cell(row=fila_total, column=1, value="TOTAL").font = Font(bold=True, size=10)
+        ws1.cell(row=fila_total, column=6, value="Total:").font = Font(bold=True, size=10)
+        cell_total = ws1.cell(row=fila_total, column=7, value=datos["total_ventas"])
+        cell_total.font = Font(bold=True, size=10)
+        cell_total.number_format = '"$"#,##0'
+        cell_total.alignment = align_right
+
+        anchos1 = [18, 16, 24, 12, 12, 12, 12, 12, 12]
+        for col, ancho in enumerate(anchos1, 1):
+            ws1.column_dimensions[get_column_letter(col)].width = ancho
+
+        # ── Hoja 2: Por Cliente ──────────────────────────────────────────
+        ws2 = wb.create_sheet("Por Cliente")
+        ws2.merge_cells("A1:C1")
+        ws2["A1"] = f"Ventas por Cliente — {periodo}"
+        ws2["A1"].font = font_titulo
+        ws2["A1"].fill = fill_titulo
+        ws2["A1"].alignment = align_center
+
+        for col, h in enumerate(["Cliente", "N° Pedidos", "Total Comprado"], 1):
+            cell = ws2.cell(row=2, column=col, value=h)
+            cell.font = font_header
+            cell.fill = fill_header
+            cell.alignment = align_center
+            cell.border = borde
+
+        for i, c in enumerate(datos["resumen_clientes"], 3):
+            fill = fill_alt if i % 2 == 0 else PatternFill()
+            for col, val in enumerate([c["cliente"], c["num_pedidos"], c["total_vendido"]], 1):
+                cell = ws2.cell(row=i, column=col, value=val)
+                cell.font = font_normal
+                cell.fill = fill
+                cell.border = borde
+                if col == 3:
+                    cell.number_format = '"$"#,##0'
+                    cell.alignment = align_right
+
+        for col, ancho in enumerate([30, 14, 18], 1):
+            ws2.column_dimensions[get_column_letter(col)].width = ancho
+
+        # ── Hoja 3: Productos ────────────────────────────────────────────
+        ws3 = wb.create_sheet("Productos")
+        ws3.merge_cells("A1:C1")
+        ws3["A1"] = f"Productos Vendidos — {periodo}"
+        ws3["A1"].font = font_titulo
+        ws3["A1"].fill = fill_titulo
+        ws3["A1"].alignment = align_center
+
+        for col, h in enumerate(["Producto", "Cantidad", "Total Vendido"], 1):
+            cell = ws3.cell(row=2, column=col, value=h)
+            cell.font = font_header
+            cell.fill = fill_header
+            cell.alignment = align_center
+            cell.border = borde
+
+        for i, prod in enumerate(datos["productos_vendidos"], 3):
+            fill = fill_alt if i % 2 == 0 else PatternFill()
+            for col, val in enumerate([prod["producto"], prod["cantidad_vendida"], prod["total_vendido"]], 1):
+                cell = ws3.cell(row=i, column=col, value=val)
+                cell.font = font_normal
+                cell.fill = fill
+                cell.border = borde
+                if col == 3:
+                    cell.number_format = '"$"#,##0'
+                    cell.alignment = align_right
+
+        for col, ancho in enumerate([30, 12, 18], 1):
+            ws3.column_dimensions[get_column_letter(col)].width = ancho
+
+        # Guardar en memoria
         buffer = io.BytesIO()
-        buffer.write(b"Excel export disabled. Contact admin to enable.")
+        wb.save(buffer)
         buffer.seek(0)
         return buffer
 
