@@ -8,7 +8,7 @@ python-telegram-bot[job-queue]==20.7
 # Utilidades
 python-dotenv==1.0.0
 rich==13.7.0
-openpyxl==3.10.10
+openpyxl==3.1.5
 
 # Opcional: para reportes en PDF
 # reportlab==4.0.7
