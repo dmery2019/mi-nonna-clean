@@ -74,7 +74,7 @@ class Reportes:
                 p.estado_pagado,
                 p.fecha_pagado
             FROM pedidos p
-            LEFT JOIN clientes c ON p.id_cliente = c.id
+            LEFT JOIN clientes c ON p.cliente_id = c.id
             WHERE datetime(p.fecha) BETWEEN ? AND ?
             ORDER BY p.fecha DESC
         """, (fecha_inicio.isoformat(), fecha_fin.isoformat()))
