@@ -16,7 +16,7 @@ build/
 .env.save
 
 # Base de datos
-data/*.db
+# data/*.db
 data/*.db-journal
 
 # Logs
