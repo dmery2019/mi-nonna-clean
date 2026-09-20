@@ -1,7 +1,5 @@
 FROM python:3.11-slim
 
-# Railway deployment - environment variables set via Railway dashboard
-# Cache buster: 2026-09-19 0238
 WORKDIR /app
 
 # Copiar archivos
@@ -11,10 +9,11 @@ COPY src/ src/
 COPY data/ data/
 COPY scripts/ scripts/
 
+# Crear directorio de logs
+RUN mkdir -p /app/logs
+
 # Instalar dependencias
-RUN pip uninstall -y openpyxl 2>/dev/null || true && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip uninstall -y openpyxl 2>/dev/null || true
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Ejecutar bot
 CMD ["python", "run_bot.py"]
