@@ -36,6 +36,16 @@ from gestion_pedidos import (
 # Cargar variables de entorno
 load_dotenv()
 
+# Lista de usuarios admin
+ADMIN_USER_IDS = [
+    8323520891,  # Usuario principal
+    8697079094   # Usuario secundario
+]
+
+def es_admin(user_id: int) -> bool:
+    """Verifica si el usuario es admin"""
+    return user_id in ADMIN_USER_IDS
+
 # Configurar logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -973,9 +983,7 @@ async def cancelar(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def reporte_diario(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Genera reporte diario (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
-    
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return
     
@@ -1000,9 +1008,7 @@ async def reporte_diario(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def reporte_semanal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Genera reporte semanal (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
-    
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return
     
@@ -1027,9 +1033,7 @@ async def reporte_semanal(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def reporte_mensual(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Genera reporte mensual (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
-    
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return
     
@@ -1067,8 +1071,7 @@ async def reporte_mensual(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def excel_diario(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Exporta reporte diario a Excel (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return
     await update.message.reply_text("📊 Generando Excel diario...")
@@ -1084,8 +1087,7 @@ async def excel_diario(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def excel_semanal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Exporta reporte semanal a Excel (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return
     await update.message.reply_text("📊 Generando Excel semanal...")
@@ -1101,8 +1103,7 @@ async def excel_semanal(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def excel_mensual(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Exporta reporte mensual a Excel (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return
     await update.message.reply_text("📊 Generando Excel mensual...")
@@ -1123,8 +1124,7 @@ async def excel_mensual(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def clientes_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Comando /clientes - Menu del maestro de clientes (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return ConversationHandler.END
 
