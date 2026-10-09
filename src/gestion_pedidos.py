@@ -1,7 +1,6 @@
 """
 Funciones para gestionar estados de pedidos
 """
-import os
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler
@@ -12,6 +11,16 @@ GESTIONAR_BUSCAR_CLIENTE = 25
 GESTIONAR_SELECCIONAR_CLIENTE = 26
 GESTIONAR_SELECCIONAR_PEDIDO = 20
 GESTIONAR_ELEGIR_ACCION = 21
+
+# Lista de usuarios admin (debe coincidir con la de bot.py)
+ADMIN_USER_IDS = [
+    8323520891,  # Usuario principal
+    8697079094   # Usuario secundario
+]
+
+def es_admin(user_id: int) -> bool:
+    """Verifica si el usuario es admin"""
+    return user_id in ADMIN_USER_IDS
 
 
 def formatear_precio(precio: int) -> str:
@@ -41,9 +50,8 @@ def formatear_estado_pedido(pedido: dict) -> str:
 async def gestionar_pedidos_start(update: Update, context: ContextTypes.DEFAULT_TYPE, db):
     """Inicia el proceso de gestionar pedidos (solo admin)"""
     user_id = update.effective_user.id
-    admin_id = int(os.getenv('ADMIN_USER_ID', 0))
     
-    if user_id != admin_id:
+    if not es_admin(user_id):
         await update.message.reply_text("No tienes permisos para este comando.")
         return ConversationHandler.END
     
