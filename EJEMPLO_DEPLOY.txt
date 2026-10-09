@@ -1,0 +1,15 @@
+EJEMPLO DE ACTUALIZACION GITHUB -> RENDER
+==========================================
+
+Timestamp: $(date)
+Rama: main
+Este archivo fue creado para demostrar el flujo de actualizacion.
+
+Pasos:
+1. Crear/modificar archivo localmente
+2. git add y git commit
+3. git push origin main
+4. Render detecta el cambio via webhook
+5. Render hace pull, rebuild, y redeploy
+
+Estado: CAMBIO EN PROGRESO
